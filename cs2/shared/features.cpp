@@ -98,6 +98,23 @@ void features::run(void)
 	dump_player_positions(local_player, local_player_controller);
 }
 
+/*
+
+Vec2 RevolveCoordinatesSystem(float RevolveAngle, Vec2 OriginPos, Vec2 DestPos)
+{
+	Vec2 ResultPos;
+	if (RevolveAngle == 0)
+		return DestPos;
+	ResultPos.x = OriginPos.x + (DestPos.x - OriginPos.x) * cos(RevolveAngle * M_PI / 180) + (DestPos.y - OriginPos.y) * sin(RevolveAngle * M_PI / 180);
+	ResultPos.y = OriginPos.y - (DestPos.x - OriginPos.x) * sin(RevolveAngle * M_PI / 180) + (DestPos.y - OriginPos.y) * cos(RevolveAngle * M_PI / 180);
+	return ResultPos;
+
+	https://github.com/clauadv/cs2_webradar/blob/main/react/public/data/de_dust2/data.json
+}
+
+
+*/
+
 void features::dump_player_positions(QWORD local_player, QWORD local_controller)
 {
 	//std::cout << "-------------------------------" << std::endl;
