@@ -1,0 +1,50 @@
+
+<html>
+  <head>
+    <script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
+    <script>     
+
+    //   var posupdater = setInterval(function() {
+    //     circle.x = circle.x + 1
+    //   }, 1000)
+        
+      var circle = new createjs.Shape();
+      function update_pos() {
+        circle.x = circle.x + 1
+      }
+
+      function init() {
+        
+        var stage = new createjs.Stage("demoCanvas");
+
+        var bitmap = new createjs.Bitmap("images/Dust_II_radar.png");
+        bitmap.x = 0
+        bitmap.y = 0
+        bitmap.scale = 2
+
+        stage.addChild(bitmap)
+        stage.update();
+
+
+        circle.graphics.beginFill("red").drawCircle(0, 0, 5);
+        circle.x = 100;
+        circle.y = 100;
+
+        stage.addChild(circle);
+
+        var circle2 = new createjs.Shape();
+        circle2.graphics.beginFill("red").drawCircle(0, 0, 5);
+        circle2.x = 100;
+        circle2.y = 55;
+        stage.addChild(circle2);
+        stage.update();
+
+        createjs.Ticker.on("tick", update_pos);
+      }
+    </script>
+  </head>
+  <body onload="init();">
+    <canvas id="demoCanvas" width="1024" height="1024"></canvas>
+  </body>
+</html>
+

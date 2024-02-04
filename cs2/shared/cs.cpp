@@ -765,7 +765,7 @@ void cs::input::move(int x, int y)
 	DATA data{};
 	data.x = (float)x;
 	data.y = (float)y;
-	vm::write(game_handle, direct::previous_xy, &data, sizeof(data));
+	//vm::write(game_handle, direct::previous_xy, &data, sizeof(data));
 }
 
 DWORD cs::player::get_health(QWORD player)

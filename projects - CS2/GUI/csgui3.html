@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+  <head>
+    <script src="https://pixijs.download/release/pixi.min.js"></script>
+  </head>
+  <body>
+    <script>
+        // State data
+        var players = {}
+
+
+        // Create the application helper and add its render target to the page
+        let app = new PIXI.Application({ width: 1024, height: 1024 });
+        document.body.appendChild(app.view);
+
+        // Create the sprite and add it to the stage
+        let sprite = PIXI.Sprite.from('images/Dust_II_radar_flip.png');
+        sprite.width = 1024
+        sprite.height = 1024
+        app.stage.addChild(sprite);
+        
+        // Add a ticker callback to move the sprite back and forth
+        //    let elapsed = 0.0;
+        //    app.ticker.add((delta) => {
+        //      elapsed += delta;
+        //      circle.x = 100.0 + Math.cos(elapsed/50.0) * 100.0;
+        //    });
+
+        var pos_updater = setInterval(() => {
+            fetch("/player_pos.json").then((response) => {
+            response.json().then((data) => {
+                for (const [key, value] of Object.entries(data)) {
+                    if (key in players) {
+                        players[key].x = (value.x/4+600)
+                        players[key].y = (value.y/4+270)
+
+                        if (key == "0") {
+                            console.log(`${key}: ${players[key].x}`);
+                        }
+                    } else {
+                        // Create new player
+                        let player = new PIXI.Graphics();
+                        if (value.team == 2) {
+                            player.beginFill(0xff0000);
+                        } else {
+                            player.beginFill(0x0000ff);
+                        }
+                        player.drawCircle(0,0, 8);
+                        app.stage.addChild(player)
+                        players[key] = player
+                        players[key].x = (value.x/7)
+                        players[key].y = (value.y/7)
+                        
+                        if (key == "0") {
+                            console.log(`${key}: ${players[key].x}`);
+                        }
+                    }
+                    
+                }
+                })
+            })  
+        }, 100);
+ 
+    </script>
+  </body>
+</html>
