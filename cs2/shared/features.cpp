@@ -89,31 +89,15 @@ void features::run(void)
 		return; // Not in game
 	}
 
-	weapon_class = cs::player::get_weapon_class(local_player);
-	if (weapon_class == cs::WEAPON_CLASS::Invalid)
-	{
-		return; // Not in game
-	}
+	// Player is most likely dead
+	// weapon_class = cs::player::get_weapon_class(local_player);
+	// if (weapon_class == cs::WEAPON_CLASS::Invalid)
+	// {
+	// 	return; // Not in game
+	// }
 
 	dump_player_positions(local_player, local_player_controller);
 }
-
-/*
-
-Vec2 RevolveCoordinatesSystem(float RevolveAngle, Vec2 OriginPos, Vec2 DestPos)
-{
-	Vec2 ResultPos;
-	if (RevolveAngle == 0)
-		return DestPos;
-	ResultPos.x = OriginPos.x + (DestPos.x - OriginPos.x) * cos(RevolveAngle * M_PI / 180) + (DestPos.y - OriginPos.y) * sin(RevolveAngle * M_PI / 180);
-	ResultPos.y = OriginPos.y - (DestPos.x - OriginPos.x) * sin(RevolveAngle * M_PI / 180) + (DestPos.y - OriginPos.y) * cos(RevolveAngle * M_PI / 180);
-	return ResultPos;
-
-	https://github.com/clauadv/cs2_webradar/blob/main/react/public/data/de_dust2/data.json
-}
-
-
-*/
 
 void features::dump_player_positions(QWORD local_player, QWORD local_controller)
 {
@@ -162,6 +146,9 @@ void features::dump_player_positions(QWORD local_player, QWORD local_controller)
 		}
 
 		QWORD teamid = cs::player::get_team_num(player);
+		QWORD health = cs::player::get_health(player);
+		cs::WEAPON_CLASS weaponclass = cs::player::get_weapon_class(player);
+		vec2 eye_angles = cs::player::get_eye_angles(player);
 
 		//std::cout << teamid << ": (" << head.x << ", " << head.y << ")" << std::endl;
 
@@ -171,6 +158,10 @@ void features::dump_player_positions(QWORD local_player, QWORD local_controller)
 		}
 		pos_file << "	\"" << i << "\": { ";
 		pos_file << "\"team\": " << teamid << ",";
+		pos_file << "\"health\": " << health << ",";
+		pos_file << "\"wclass\": " << static_cast<int>(weaponclass) << ",";
+		pos_file << "\"ex\": " << eye_angles.x << ",";
+		pos_file << "\"ey\": " << eye_angles.y << ",";
 		pos_file << "\"x\": " << head.x << ",";
 		pos_file << "\"y\": " << head.y << "}";
 
