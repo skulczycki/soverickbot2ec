@@ -7,7 +7,7 @@
     <script>
         // State data
         var players = {}
-        var current_map = "de_inferno"
+        var current_map = "de_dust2"
         var map_data = {
             "de_dust2": {
                 "image": 'images/dust2_radar.png', 
@@ -59,9 +59,74 @@
             },
         }
 
-        var team_id_colours = {
-            2: 0xff0000,
-            3: 0x2222ff
+        function getColourTeam(team) {
+            if (team == 2) {
+                return { r: 255, g: 0, b: 0 }
+            } else {
+                return { r: 0, g: 0, b: 255 }
+            }
+        }
+
+        class Player {
+            constructor(parent_container, team_id) {
+                this.parent_container = parent_container
+                this.team_id = team_id
+                this.health = 100
+
+                let player = new PIXI.Container();
+                let avatar = new PIXI.Graphics();
+                this.container = player
+                this.avatar = avatar
+                player.addChild(avatar)
+
+                // this.text = new PIXI.Text('AWP', {
+                //     fontFamily: 'Arial',
+                //     fontSize: 30,
+                //     fill: 0xaaffaa,
+                //     align: 'center',
+                // });
+                // this.text.y = -20
+                // this.text.x = 10
+                // player.addChild(this.text)
+
+                this.update()
+
+                parent_container.addChild(player)                
+            }
+
+            setHealth(health) {
+                this.health = health
+            }
+
+            setPos(x, y, rotation) {
+                this.container.x = x
+                this.container.y = y
+                this.avatar.rotation = rotation
+            }
+
+            update() {
+                this.draw_avatar()
+            }
+
+            draw_avatar() {
+                this.avatar.clear()
+                this.avatar.beginFill(0x222222)
+                this.avatar.drawCircle(0,0, 15);
+                this.avatar.endFill()
+                this.avatar.beginFill(getColourTeam(this.team_id));
+                this.avatar.lineStyle(4, { r: 255, g: 255*(this.health/100.0), b: 255*(this.health/100.0) });
+                this.avatar.drawCircle(0,0, 10);
+                this.avatar.endFill()
+                this.avatar.lineStyle(4, 0xFFFFFF);
+                this.avatar.lineTo(20,0)
+                this.avatar.x = 0
+                this.avatar.y = 0
+                this.avatar.rotation = this.rotation
+            }
+
+            remove() {
+                this.parent_container.removeChild(this.container)
+            }
         }
 
         // Create the application helper and add its render target to the page
@@ -86,46 +151,47 @@
             response.json().then((data) => {
                 for (const [key, value] of Object.entries(data)) {
                     if (key in players) {
-                        players[key].x = (value.x+map_data[current_map].shift_x)/map_data[current_map].scale
-                        players[key].y = (-value.y+map_data[current_map].shift_y)/map_data[current_map].scale
+                        players[key].setHealth(value.health)
+                        players[key].update()
+                        players[key].setPos((value.x+map_data[current_map].shift_x)/map_data[current_map].scale, (-value.y+map_data[current_map].shift_y)/map_data[current_map].scale, -value.ey*(3.142/180.0))
+                        // players[key].update()
 
-                        if (key == "0") {
-                            console.log(`${key}: ${players[key].x}`);
-                        }
                     } else {
                         // Create new player
-                        let player = new PIXI.Graphics();
-                        player.clear()
-                        player.beginFill(team_id_colours[value.team]);
-                        player.lineStyle(2, 0xFFFFFF);
-                        player.drawCircle(0,0, 8);
-                        app.stage.addChild(player)
-                        players[key] = player
-                        players[key].x = (value.x+map_data[current_map].shift_x)/map_data[current_map].scale
-                        players[key].y = (-value.y+map_data[current_map].shift_y)/map_data[current_map].scale
-                        
-                        if (key == "0") {
-                            console.log(`${key}: ${players[key].x}`);
-                        }
+                        players[key] = new Player(app.stage, value.team)
+                        players[key].setPos((value.x+map_data[current_map].shift_x)/map_data[current_map].scale, (-value.y+map_data[current_map].shift_y)/map_data[current_map].scale, -value.ey*(3.142/180.0))
+                        // players[key].update()
+                        // app.stage.addChild(players[key].container)
+                        // let player = new PIXI.Container();
+                        // let avatar = new PIXI.Graphics();
+                        // player.addChild(avatar)
+                        // avatar.clear()
+                        // avatar.beginFill(team_id_colours[value.team]);
+                        // avatar.lineStyle(2, 0xFFFFFF);
+                        // avatar.drawCircle(0,0, 8);
+                        // avatar.lineStyle(4, 0xFFFFFF);
+                        // avatar.lineTo(15,0)
+                        // avatar.rotation = value.ey
+                        // app.stage.addChild(player)
+                        // players[key] = player
+                        // players[key].x = (value.x+map_data[current_map].shift_x)/map_data[current_map].scale
+                        // players[key].y = (-value.y+map_data[current_map].shift_y)/map_data[current_map].scale
+
                     }
                     
                 }
 
-                    for (const [key, player] of Object.entries(players)) {
-                        if (key in data) { // Player was sent by server
-                            // player.beginFill(team_id_colours[data[key].team]);
-                            player.clear()
-                            player.beginFill(team_id_colours[data[key].team]);
-                            player.lineStyle(2, 0xFFFFFF);
-                            player.drawCircle(0,0, 8);
-                        } else {
-                            player.clear()
-                            player.beginFill(0x222222)
-                            player.lineStyle(0,0);
-                            player.drawCircle(0,0, 8);
-                        }
-
+                for (const [key, player] of Object.entries(players)) {
+                    if (key in data) { // Player was sent by server
+                        // Player is alive
+                    } else {
+                        // Player is dead - remove
+                        player.remove()
+                        delete players[key]
                     }
+
+                }
+
                 })
             })  
         }, 100);
