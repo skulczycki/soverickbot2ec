@@ -7,14 +7,63 @@
     <script>
         // State data
         var players = {}
+        var current_map = "de_dust2"
+        var map_data = {
+            "de_dust2": {
+                "image": 'images/dust2_radar.png', 
+                "scale": 4.4,
+                "shift_x": 2476,
+                "shift_y": 3239
+            },
+            "de_mirage": {
+                "image": 'images/de_mirage.png',
+                "scale": 5.0,
+                "shift_x": 3230,
+                "shift_y": 1713
+            },
+            "de_inferno": {
+                "image": 'images/inferno_radar.png',
+                "scale": 4.9,
+                "shift_x": 2087,
+                "shift_y": 3870
+            },
+            "de_nuke": {
+                "image": 'images/nuke_radar.png',
+                "scale": 7,
+                "shift_x": 3453,
+                "shift_y": 2887
+            },
+            "de_overpass": {
+                "image": 'images/overpass_radar.png',
+                "scale": 5.2,
+                "shift_x": 4831,
+                "shift_y": 1781
+            },
+            "de_vertigo": {
+                "image": 'images/vertigo_radar.png',
+                "scale": 4.0,
+                "shift_x": 3168,
+                "shift_y": 1762
+            },
+            "de_anubis": {
+                "image": 'images/ancient_radar.png',
+                "scale": 5.22,
+                "shift_x": 2796,
+                "shift_y": 3328
+            },
+        }
 
+        var team_id_colours = {
+            2: 0xff0000,
+            3: 0x2222ff
+        }
 
         // Create the application helper and add its render target to the page
         let app = new PIXI.Application({ width: 1024, height: 1024 });
         document.body.appendChild(app.view);
 
         // Create the sprite and add it to the stage
-        let sprite = PIXI.Sprite.from('images/Dust_II_radar_flip.png');
+        let sprite = PIXI.Sprite.from(map_data[current_map].image);
         sprite.width = 1024
         sprite.height = 1024
         app.stage.addChild(sprite);
@@ -31,8 +80,8 @@
             response.json().then((data) => {
                 for (const [key, value] of Object.entries(data)) {
                     if (key in players) {
-                        players[key].x = (value.x+2476)/4.4
-                        players[key].y = (value.y+1300)/4.4
+                        players[key].x = (value.x+map_data[current_map].shift_x)/map_data[current_map].scale
+                        players[key].y = (-value.y+map_data[current_map].shift_y)/map_data[current_map].scale
 
                         if (key == "0") {
                             console.log(`${key}: ${players[key].x}`);
@@ -40,16 +89,14 @@
                     } else {
                         // Create new player
                         let player = new PIXI.Graphics();
-                        if (value.team == 2) {
-                            player.beginFill(0xff0000);
-                        } else {
-                            player.beginFill(0x0000ff);
-                        }
+                        player.clear()
+                        player.beginFill(team_id_colours[value.team]);
+                        player.lineStyle(2, 0xFFFFFF);
                         player.drawCircle(0,0, 8);
                         app.stage.addChild(player)
                         players[key] = player
-                        players[key].x = (value.x/7)
-                        players[key].y = (value.y/7)
+                        players[key].x = (value.x+map_data[current_map].shift_x)/map_data[current_map].scale
+                        players[key].y = (-value.y+map_data[current_map].shift_y)/map_data[current_map].scale
                         
                         if (key == "0") {
                             console.log(`${key}: ${players[key].x}`);
@@ -57,6 +104,22 @@
                     }
                     
                 }
+
+                    for (const [key, player] of Object.entries(players)) {
+                        if (key in data) { // Player was sent by server
+                            // player.beginFill(team_id_colours[data[key].team]);
+                            player.clear()
+                            player.beginFill(team_id_colours[data[key].team]);
+                            player.lineStyle(2, 0xFFFFFF);
+                            player.drawCircle(0,0, 8);
+                        } else {
+                            player.clear()
+                            player.beginFill(0x222222)
+                            player.lineStyle(0,0);
+                            player.drawCircle(0,0, 8);
+                        }
+
+                    }
                 })
             })  
         }, 100);

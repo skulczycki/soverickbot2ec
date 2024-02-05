@@ -133,10 +133,10 @@ void features::dump_player_positions(QWORD local_player, QWORD local_controller)
 		//
 		// is controller
 		//
-		if (!cs::entity::is_player(ent))
-		{
-			continue;
-		}
+		// if (!cs::entity::is_player(ent))
+		// {
+		// 	continue;
+		// }
 
 		QWORD player = cs::entity::get_player(ent);
 		if (player == 0)
