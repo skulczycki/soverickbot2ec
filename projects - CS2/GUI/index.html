@@ -59,6 +59,15 @@
             },
         }
 
+        const WeaponClass = {
+            0: "NA",
+            1: "Knf",
+            2: "HE",
+            3: "Pstl",
+            4: "AWP",
+            5: "AK"
+        }
+
         function getColourTeam(team) {
             if (team == 2) {
                 return { r: 255, g: 0, b: 0 }
@@ -72,6 +81,7 @@
                 this.parent_container = parent_container
                 this.team_id = team_id
                 this.health = 100
+                this.weapon_class = 0
 
                 let player = new PIXI.Container();
                 let avatar = new PIXI.Graphics();
@@ -79,15 +89,21 @@
                 this.avatar = avatar
                 player.addChild(avatar)
 
-                // this.text = new PIXI.Text('AWP', {
-                //     fontFamily: 'Arial',
-                //     fontSize: 30,
-                //     fill: 0xaaffaa,
-                //     align: 'center',
-                // });
-                // this.text.y = -20
-                // this.text.x = 10
-                // player.addChild(this.text)
+                this.text = new PIXI.Text(WeaponClass[this.weapon_class], {
+                    fontFamily: 'Arial',
+                    fontSize: 26,
+                    fill: 0xaaffaa,
+                    align: 'center',
+                    dropShadow: true,
+                    dropShadowDistance: 0,
+                    dropShadowBlur: 3,
+                    stroke: "black",
+                    strokeThickness: 5
+
+                });
+                this.text.y = -20
+                this.text.x = 10
+                player.addChild(this.text)
 
                 this.update()
 
@@ -98,6 +114,10 @@
                 this.health = health
             }
 
+            setWeapon(weapon_class) {
+                this.weapon_class = weapon_class
+            }
+
             setPos(x, y, rotation) {
                 this.container.x = x
                 this.container.y = y
@@ -106,22 +126,28 @@
 
             update() {
                 this.draw_avatar()
+                this.draw_text()
             }
 
             draw_avatar() {
                 this.avatar.clear()
                 this.avatar.beginFill(0x222222)
-                this.avatar.drawCircle(0,0, 15);
+                this.avatar.drawCircle(0,0, 20);
                 this.avatar.endFill()
                 this.avatar.beginFill(getColourTeam(this.team_id));
                 this.avatar.lineStyle(4, { r: 255, g: 255*(this.health/100.0), b: 255*(this.health/100.0) });
-                this.avatar.drawCircle(0,0, 10);
+                this.avatar.drawCircle(0,0, 16);
                 this.avatar.endFill()
                 this.avatar.lineStyle(4, 0xFFFFFF);
                 this.avatar.lineTo(20,0)
                 this.avatar.x = 0
                 this.avatar.y = 0
                 this.avatar.rotation = this.rotation
+            }
+
+            draw_text() {
+                this.text.text = WeaponClass[this.weapon_class]
+                this.text.updateText()
             }
 
             remove() {
@@ -160,6 +186,7 @@
                         // Create new player
                         players[key] = new Player(app.stage, value.team)
                         players[key].setPos((value.x+map_data[current_map].shift_x)/map_data[current_map].scale, (-value.y+map_data[current_map].shift_y)/map_data[current_map].scale, -value.ey*(3.142/180.0))
+                        players[key].setWeapon(value.wclass)
                         // players[key].update()
                         // app.stage.addChild(players[key].container)
                         // let player = new PIXI.Container();
